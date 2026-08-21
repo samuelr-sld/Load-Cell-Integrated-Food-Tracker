@@ -1,0 +1,18 @@
+# Virtual Environment
+venv/
+.venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Heavy Raw Datasets & Temporary Runs
+yolo_pipeline/data/
+yolo_pipeline/runs/
+mobilenet_pipeline/dataset/
+runs/
+*.jpg
+*.png
+
+# Keep trained model weights (Optional: if weights are <100MB)
+# If yolo11s_food_best.pt is >100MB, untrack it and use Git LFS or direct transfer to Pi
