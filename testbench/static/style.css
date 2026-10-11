@@ -89,6 +89,64 @@ tr.rank1 td { font-weight: 600; }
 .fb .link { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 12px; padding: 0; }
 .fb-msg { font-size: 12px; color: var(--muted); flex-basis: 100%; } .fb-msg.err { color: var(--bad); }
 
+/* mode selector, mode badge, side-by-side model panels, comparison table */
+.modes { display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: baseline; margin: 0 0 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.modes legend { font-size: 12px; color: var(--muted); padding: 0 4px; }
+.modes label { cursor: pointer; }
+.modes .hint { margin-left: 4px; }
+.badge { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+.badge.yolo_only { color: var(--ok); border-color: var(--ok); }
+.badge.compare { color: var(--warn); border-color: var(--warn); }
+.models { display: grid; gap: 10px; align-content: start; }
+.model { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.model h5 { margin: 0 0 4px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.info { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
+table.cmp td { vertical-align: middle; }
+img.thumb { width: 56px; height: 56px; object-fit: contain; border: 1px solid var(--line); border-radius: 4px; }
+.vd { font-weight: 700; } .vd.correct { color: var(--ok); } .vd.incorrect { color: var(--bad); } .vd.ambiguous { color: var(--warn); } .vd.none { color: var(--muted); }
+.yolo-sum { margin-top: 12px; max-width: 520px; }
+.yolo-sum h4 { margin-bottom: 4px; }
+
 dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); max-width: 96vw; }
 dialog img { max-width: 90vw; max-height: 80vh; display: block; margin-bottom: 8px; }
 dialog::backdrop { background: rgba(0, 0, 0, .6); }
+
+/* identity confirmation + nutrition */
+.region { border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.region.confirmed { border-color: #2e8b57; }
+.region h5 { margin: 0 0 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.cands { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.usda-pick { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; margin: 8px 0; }
+.nut-box { margin-top: 8px; }
+.nut td, .nut th { padding: 3px 10px; }
+.meal { font-weight: 600; padding: 8px 0; }
+
+/* plate analysis */
+.plate { display: grid; gap: 10px; }
+.plate-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(220px, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 860px) { .plate-grid { grid-template-columns: 1fr; } }
+.stage { position: relative; line-height: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.stage-img { width: 100%; height: auto; display: block; }
+.stage-svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+.plate-ring { fill: none; stroke: #00e5ff; stroke-width: 3; stroke-dasharray: 10 6; vector-effect: non-scaling-stroke; }
+.plate-ring-dot { fill: #00e5ff; }
+.draft-line { fill: rgba(255, 255, 0, .15); stroke: #ffe600; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.draft-pt { fill: #ffe600; stroke: #000; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.pie-wrap { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.pie { width: 200px; height: 200px; flex: none; }
+.pie .slice { stroke: var(--panel); stroke-width: .01; }
+.legend { list-style: none; margin: 0; padding: 0; font-size: 12px; display: grid; gap: 4px; }
+.statusline { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.badge.bad { color: var(--bad); border-color: var(--bad); }
+.tbl-scroll { overflow-x: auto; }
+.plate-table td.w { font-weight: 700; }
+.plate-table .unres { color: var(--warn); font-weight: 600; }
+.warns { margin: 0; padding-left: 18px; font-size: 12px; display: grid; gap: 3px; }
+.warns .w-warning, .warns .w-blocking { color: var(--warn); } .warns .w-blocking { color: var(--bad); } .warns .w-info { color: var(--muted); }
+.fb label { font-size: 12px; }
+
+/* camera + plate detection panel */
+.plate-ring.uncertain { stroke: #ffa000; }
+.cam-stage { max-width: 720px; margin-top: 8px; }
+#camera-panel select { font: inherit; font-size: 12px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+#camera-panel .btn:disabled { opacity: .5; cursor: not-allowed; }

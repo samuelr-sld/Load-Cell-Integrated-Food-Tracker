@@ -4,7 +4,9 @@ import {
   SafeAreaView, StatusBar, TouchableOpacity, ScrollView, Modal 
 } from 'react-native';
 import { collection, onSnapshot, query } from 'firebase/firestore';
-import { db } from './firebaseConfig';
+import { signInAnonymously } from 'firebase/auth';
+import { db, auth } from './firebaseConfig';
+
 import { 
   generateDietaryAdvice, 
   generateSingleMealAdvice, 
@@ -156,25 +158,82 @@ export default function App() {
     };
   };
 
+  
   useEffect(() => {
-    const q = query(collection(db, 'meal')); // Use 'meals' if plural
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const mealList = [];
-      snapshot.forEach((doc) => {
-        mealList.push({ id: doc.id, ...doc.data() });
-      });
-      setMeals(mealList);
-      setSections(groupMealsByDate(mealList));
-      const stats = computeWeeklyInsights(mealList);
-      setWeeklyStats(stats);
-      setLoading(false);
-    }, (error) => {
-      console.error("Firestore error: ", error);
-      setLoading(false);
-    });
+    let unsubscribe = null;
+    let cancelled = false;
 
-    return () => unsubscribe();
+    const initializeFirebase = async () => {
+      try {
+        // STEP 1: Authenticate anonymously before reading Firestore
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
+
+        // Prevent starting a listener after unmount
+        if (cancelled) return;
+
+        console.log(
+          'Firebase authenticated successfully:',
+          auth.currentUser?.uid
+        );
+
+        // STEP 2: Connect to the existing meal collection
+        const q = query(collection(db, 'meal'));
+
+        // STEP 3: Start the real-time Firestore listener
+        unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            if (cancelled) return;
+
+            const mealList = [];
+
+            snapshot.forEach((doc) => {
+              mealList.push({
+                id: doc.id,
+                ...doc.data(),
+              });
+            });
+
+            // Update existing application states
+            setMeals(mealList);
+            setSections(groupMealsByDate(mealList));
+            setWeeklyStats(computeWeeklyInsights(mealList));
+            setLoading(false);
+
+            console.log(
+              'Firestore connected. Meals loaded:',
+              mealList.length
+            );
+          },
+          (error) => {
+            if (cancelled) return;
+
+            console.error('Firestore error:', error);
+            setLoading(false);
+          }
+        );
+      } catch (error) {
+        if (cancelled) return;
+
+        console.error('Firebase authentication error:', error);
+        setLoading(false);
+      }
+    };
+
+    initializeFirebase();
+
+    // STEP 4: Clean up Firestore listener on unmount
+    return () => {
+      cancelled = true;
+
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
+
 
   const openWeeklyInsights = async () => {
     setWeeklyModalVisible(true);

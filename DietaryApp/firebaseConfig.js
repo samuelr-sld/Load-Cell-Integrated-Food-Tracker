@@ -1,15 +1,22 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCUE6HB-4JdFCCV1Gvk4zkajW61K4RgbiM",
-  authDomain: "electives-mobile-application.firebaseapp.com",
-  projectId: "electives-mobile-application",
-  storageBucket: "electives-mobile-application.firebasestorage.app",
-  messagingSenderId: "806595189071",
-  appId: "1:806595189071:web:0a4c90b21177228c6bcd3a",
-  measurementId: "G-QTF5TCS3V5"
+  apiKey: "AIzaSyBWPQPsgO3Fnbt7x4zhdVh8IqnSmB46iAE",
+  authDomain: "platego-fa6b8.firebaseapp.com",
+  projectId: "platego-fa6b8",
+  storageBucket: "platego-fa6b8.firebasestorage.app",
+  messagingSenderId: "221736279772",
+  appId: "1:221736279772:web:0dc3fa8fa32e0184291e19",
+  measurementId: "G-JY05T8WVM4"
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+export { app, db, auth };

@@ -1,0 +1,91 @@
+﻿== frankfurter beef
+323121	Foundation	Frankfurter, beef, unheated
+2758991	Foundation	Bologna, beef
+2727573	Foundation	Beef,átenderloin steak, raw
+2759006	Foundation	Pepperoni, beef and pork, sliced
+2727574	Foundation	Beef, top sirloin steak, raw
+2759003	Foundation	Lunchmeat, roast beef, sliced, prepackaged
+174614	SR Legacy	Frankfurter, beef, heated
+173862	SR Legacy	Frankfurter, beef, unheated
+167696	SR Legacy	Frankfurter, beef, low fat
+172949	SR Legacy	Frankfurter, beef, pork, and turkey, fat free
+171624	SR Legacy	Frankfurter, chicken
+172968	SR Legacy	Frankfurter, meat
+== frankfurter beef and pork
+323121	Foundation	Frankfurter, beef, unheated
+2759006	Foundation	Pepperoni, beef and pork, sliced
+2514745	Foundation	Pork, ground, raw
+2727576	Foundation	Pork, belly, with skin, raw
+2646168	Foundation	Pork, loin, boneless, raw
+2758991	Foundation	Bologna, beef
+172964	SR Legacy	Frankfurter, pork
+172949	SR Legacy	Frankfurter, beef, pork, and turkey, fat free
+174614	SR Legacy	Frankfurter, beef, heated
+173862	SR Legacy	Frankfurter, beef, unheated
+167696	SR Legacy	Frankfurter, beef, low fat
+171624	SR Legacy	Frankfurter, chicken
+== egg whole cooked hard-boiled
+748967	Foundation	Eggs, Grade A, Large, egg whole
+329490	Foundation	Egg, whole, dried
+326196	Foundation	Kale, frozen, cooked, boiled, drained, without salt
+323604	Foundation	Egg, whole, raw, frozen, pasteurized
+2759005	Foundation	Salami, hard, sliced
+747997	Foundation	Eggs, Grade A, Large, egg white
+173424	SR Legacy	Egg, whole, cooked, hard-boiled
+173423	SR Legacy	Egg, whole, cooked, fried
+172185	SR Legacy	Egg, whole, cooked, omelet
+172186	SR Legacy	Egg, whole, cooked, poached
+172187	SR Legacy	Egg, whole, cooked, scrambled
+170507	SR Legacy	Onions, frozen, whole, cooked, boiled, drained, with salt
+== egg whole cooked fried
+748967	Foundation	Eggs, Grade A, Large, egg whole
+329490	Foundation	Egg, whole, dried
+746780	Foundation	Sausage, Italian, pork, mild, cooked, pan-fried
+323604	Foundation	Egg, whole, raw, frozen, pasteurized
+746781	Foundation	Sausage, pork, chorizo, link or ground, cooked, pan-fried
+747997	Foundation	Eggs, Grade A, Large, egg white
+173423	SR Legacy	Egg, whole, cooked, fried
+172185	SR Legacy	Egg, whole, cooked, omelet
+172186	SR Legacy	Egg, whole, cooked, poached
+172187	SR Legacy	Egg, whole, cooked, scrambled
+173424	SR Legacy	Egg, whole, cooked, hard-boiled
+172188	SR Legacy	Egg, whole, dried
+== egg whole cooked scrambled
+748967	Foundation	Eggs, Grade A, Large, egg whole
+329490	Foundation	Egg, whole, dried
+323604	Foundation	Egg, whole, raw, frozen, pasteurized
+747997	Foundation	Eggs, Grade A, Large, egg white
+748236	Foundation	Eggs, Grade A, Large, egg yolk
+323793	Foundation	Egg, white, dried
+172187	SR Legacy	Egg, whole, cooked, scrambled
+173423	SR Legacy	Egg, whole, cooked, fried
+172185	SR Legacy	Egg, whole, cooked, omelet
+172186	SR Legacy	Egg, whole, cooked, poached
+169904	SR Legacy	Eggs, scrambled, frozen mixture
+173272	SR Legacy	Fast foods, egg, scrambled
+== chicken broilers or fryers breast meat only cooked roasted
+331960	Foundation	Chicken, broiler or fryers, breast, skinless, boneless, meat only, cooked, braised
+331897	Foundation	Chicken, broilers or fryers, drumstick, meat only, cooked, braised
+2727569	Foundation	Chicken, breast, meat and skin, raw
+746758	Foundation	Beef, loin, tenderloin roast, separable lean only, boneless, trimmed to 0" fat, select, cooked, roasted
+2759004	Foundation	Lunchmeat, chicken breast, sliced
+2646170	Foundation	Chicken, breast, boneless, skinless, raw
+171477	SR Legacy	Chicken, broilers or fryers, breast, meat only, cooked, roasted
+171054	SR Legacy	Chicken, broilers or fryers, meat only, cooked, roasted
+171078	SR Legacy	Chicken, broilers or fryers, breast, meat only, cooked, fried
+171478	SR Legacy	Chicken, broilers or fryers, breast, meat only, cooked, stewed
+171472	SR Legacy	Chicken, broilers or fryers, back, meat only, cooked, roasted
+172380	SR Legacy	Chicken, broilers or fryers, leg, meat only, cooked, roasted
+== chicken broilers or fryers meat and skin cooked roasted
+331897	Foundation	Chicken, broilers or fryers, drumstick, meat only, cooked, braised
+331960	Foundation	Chicken, broiler or fryers, breast, skinless, boneless, meat only, cooked, braised
+2727569	Foundation	Chicken, breast, meat and skin, raw
+2727566	Foundation	Chicken, drumstick, meat and skin, raw
+2727567	Foundation	Chicken, thigh, meat and skin, raw
+2727568	Foundation	Chicken, wing, meat and skin, raw
+171450	SR Legacy	Chicken, broilers or fryers, meat and skin, cooked, roasted
+171071	SR Legacy	Chicken, broilers or fryers, back, meat and skin, cooked, roasted
+171075	SR Legacy	Chicken, broilers or fryers, breast, meat and skin, cooked, roasted
+173612	SR Legacy	Chicken, broilers or fryers, drumstick, meat and skin, cooked, roasted
+173617	SR Legacy	Chicken, broilers or fryers, leg, meat and skin, cooked, roasted
+173625	SR Legacy	Chicken, broilers or fryers, thigh, meat and skin, cooked, roasted
