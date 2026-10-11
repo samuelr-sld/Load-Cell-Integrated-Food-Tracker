@@ -1,0 +1,7 @@
+# Packages ADDED to the existing project venv for the testbench (everything else it uses was already installed:
+# torch 2.5.1+cu121, torchvision 0.20.1+cu121, ultralytics 8.4.121, numpy, pillow, opencv-python, httpx, scikit-learn).
+# Install with:  .\venv\Scripts\python.exe -m pip install -r testbench\requirements-testbench.txt
+fastapi==0.143.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+pytest==9.1.1

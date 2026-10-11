@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Food Recognition Testbench</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="titles">
+      <h1>Food Recognition Testbench</h1>
+      <p>YOLO11s-seg &rarr; masked crops &rarr; MobileNetV3 classifier &middot; <strong>temporary experimental harness</strong></p>
+    </div>
+    <div class="health" id="health" aria-live="polite">connecting&hellip;</div>
+    <button id="clear-btn" class="btn danger" type="button">Clear all results</button>
+  </header>
+
+  <main>
+    <section aria-label="Upload">
+      <label id="dropzone" class="dropzone" for="file-input" tabindex="0">
+        <strong>Drop meal photos here</strong> or click to choose files
+        <span class="hint" id="limits-hint">JPEG / PNG</span>
+      </label>
+      <input id="file-input" type="file" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" hidden>
+      <ul id="queue" class="queue" aria-label="Upload queue"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="sum-h">
+      <details open>
+        <summary><h2 id="sum-h">Experimental summary</h2></summary>
+        <div id="summary" class="summary">no data yet</div>
+      </details>
+    </section>
+
+    <section aria-labelledby="res-h">
+      <h2 id="res-h">Results</h2>
+      <div id="results" class="results"><p class="empty" id="empty">No results yet. Upload an image to begin.</p></div>
+    </section>
+  </main>
+
+  <datalist id="classes"></datalist>
+  <dialog id="lightbox"><img alt="" id="lightbox-img"><form method="dialog"><button class="btn">Close</button></form></dialog>
+  <script src="/static/app.js"></script>
+</body>
+</html>
