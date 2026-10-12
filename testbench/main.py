@@ -1,11 +1,13 @@
 """FastAPI app: local testbench API plus the static debugging UI. Model-specific logic lives in the other modules."""
 from __future__ import annotations
 
+import hmac
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Literal, Optional
 
+import cv2
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
@@ -14,7 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .camera import CameraError, CameraService, parse_camera_id
+from .camera import CameraError, CameraService, parse_camera_id, parse_source
 from .camera_api import build_router as build_camera_router, decode_rgb
 from .camera_calibration import CalibrationStore
 from .config import MODES, Settings
@@ -28,6 +30,7 @@ from .plate_detection import AutoPlateDetectionService
 from .plate_localization import PlateLocalizer
 from .regions import MAX_WEIGHT_G, RegionRecord, meal_totals
 from .result_store import ResultStore, ResultTooLarge
+from .scale_scan import ScanCoordinator, SerialListener, build_router as build_scale_router, foods_from_regions
 
 log = logging.getLogger("testbench.api")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -136,8 +139,34 @@ def create_app(settings: Settings | None = None, pipeline=None, nutrition: Nutri
     detector = AutoPlateDetectionService()
     localizer = PlateLocalizer(settings, calibrations, detector)
 
+    def run_scan(scan: dict) -> dict:
+        """Scale-triggered scan: the same camera.capture + InferencePipeline.process_upload the manual testbench uses."""
+        pipe = app.state.pipeline
+        if pipe is None or not getattr(pipe, "ready", False):
+            raise RuntimeError(app.state.load_error or "Models are not loaded yet")
+        raw = calibrations.selected_camera()
+        frame = camera.capture(parse_source(raw if raw is not None else settings.camera_source))
+        ok, buf = cv2.imencode(".jpg", frame.bgr, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        if not ok:
+            raise RuntimeError("Could not encode the captured frame")
+        record = pipe.process_upload(buf.tobytes(), f"scale_{scan['scan_id']}.jpg", None)
+        if record.status == "failed":
+            raise RuntimeError(record.error)
+        store.add(record)
+        log.info("scan %s stored result %s (store now holds %d)", scan["scan_id"], record.result_id, store.stats()["count"])
+        foods = foods_from_regions(record.to_detail(nutri)["regions"], nutri)
+        # One food: the plate's net weight is its portion. Several: no per-food weights are invented; the user allocates them.
+        return {"result_id": record.result_id, "camera_id": frame.info()["camera_id"], "foods": foods, "needs_manual_food": not foods,
+                "suggested_grams": scan["net_grams"] if len(foods) == 1 else None}
+
+    coordinator = ScanCoordinator(run_scan, settings.scale_tare_g, settings.scale_min_net_g)
+    store.protected = coordinator.active_result_ids
+    listener = SerialListener(settings.scale_port, settings.scale_baud, coordinator.handle) if settings.scale_enabled else None
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        if listener:
+            listener.start()
         app.state.load_error = None
         if pipeline is not None:
             app.state.pipeline = pipeline
@@ -156,11 +185,13 @@ def create_app(settings: Settings | None = None, pipeline=None, nutrition: Nutri
                 app.state.load_error = str(exc)
                 log.error("Model loading failed: %s", exc)
         yield
+        if listener:
+            listener.stop()
         camera.shutdown()          # release the camera if a live preview still holds it
 
     app = FastAPI(title="Food Recognition Inference Testbench", version="0.1.0", lifespan=lifespan,
                   docs_url="/api/docs", redoc_url=None, openapi_url="/api/openapi.json")
-    app.state.settings, app.state.store = settings, store
+    app.state.settings, app.state.store, app.state.scale = settings, store, coordinator
 
     # ----------------------------------------------------------------- errors
     @app.exception_handler(ApiError)
@@ -184,6 +215,21 @@ def create_app(settings: Settings | None = None, pipeline=None, nutrition: Nutri
     async def _unhandled(_: Request, exc: Exception):
         log.exception("unhandled error")
         return JSONResponse(_error_body("internal_error", "Internal server error. Details are in the server log."), status_code=500)
+
+    if settings.host not in ("127.0.0.1", "localhost", "::1"):
+        from ai_gateway.app import load_token       # same pairing token the phone already holds for the AI gateway
+        pairing = load_token()
+
+        @app.middleware("http")
+        async def _lan_guard(request: Request, call_next):
+            # Reachable from the Wi-Fi: only the scan routes, and only with the token. The rest of the testbench stays laptop-only.
+            # The laptop itself counts as local even when it browses to its own Wi-Fi address (client IP == the address it connected to).
+            if request.client and request.client.host not in ("127.0.0.1", "::1", (request.scope.get("server") or (None,))[0]):
+                if not request.url.path.startswith(("/api/scale/", "/api/scans/")):
+                    return JSONResponse(_error_body("forbidden", "Only the scan API is available over the network."), status_code=403)
+                if not hmac.compare_digest(request.headers.get("authorization", "").encode(), f"Bearer {pairing}".encode()):
+                    return JSONResponse(_error_body("unauthorized", "Missing or wrong pairing token."), status_code=401)
+            return await call_next(request)
 
     @app.middleware("http")
     async def _body_size_guard(request: Request, call_next):
@@ -506,6 +552,7 @@ def create_app(settings: Settings | None = None, pipeline=None, nutrition: Nutri
             raise ApiError(404, "meal_not_found", f"No saved meal '{meal_id}'")
         return meal
 
+    app.include_router(build_scale_router(coordinator, listener))
     app.include_router(build_camera_router(settings, camera, calibrations, detector, localizer))
 
     # ----------------------------------------------------------------- UI

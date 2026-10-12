@@ -1,7 +1,9 @@
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuth, initializeAuth, getReactNativePersistence } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBWPQPsgO3Fnbt7x4zhdVh8IqnSmB46iAE",
@@ -15,7 +17,16 @@ const firebaseConfig = {
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
+// initializeAuth throws if Auth already exists (Fast Refresh), so fall back to getAuth.
+// Web has no getReactNativePersistence; its default persistence already survives restarts.
+let auth;
+try {
+  auth = Platform.OS === "web"
+    ? getAuth(app)
+    : initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
+} catch (e) {
+  auth = getAuth(app);
+}
 
 const db = getFirestore(app);
 

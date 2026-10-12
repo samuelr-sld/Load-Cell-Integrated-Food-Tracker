@@ -1,0 +1,51 @@
+rules_version = '2';
+
+// NOT DEPLOYED. Tested only against the Firestore emulator (npm run test:emulator).
+// Before deploying, merge the legacy `meal` block with the rules currently live in the console:
+// whatever writes `meal` today must keep working, and this file makes it client read-only.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Legacy meal history: read by signed-in app users, never written by the app.
+    match /meal/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Canonical synced meals, private to their owner.
+    match /users/{uid}/meals/{mealId} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == uid;
+      }
+
+      function validMeal(d) {
+        let fields = ['id', 'ownerUid', 'loggedAt', 'tzOffsetMin', 'dayKey', 'category', 'items', 'source',
+                      'originalScanJson', 'createdAt', 'deletedAt', 'rev', 'lastEditId', 'serverUpdatedAt'];
+        return d.keys().hasAll(fields) && d.keys().hasOnly(fields)
+          && d.id == mealId && d.ownerUid == uid
+          && d.rev is int
+          && d.lastEditId is string && d.lastEditId.size() > 0 && d.lastEditId.size() <= 64
+          && d.serverUpdatedAt == request.time
+          && d.category in ['breakfast', 'lunch', 'dinner', 'snack', 'unknown']
+          && d.items is list && d.items.size() <= 100
+          && d.source is map && d.source.kind in ['camera', 'manual', 'legacy']
+          && (d.loggedAt == null || d.loggedAt is number)
+          && (d.tzOffsetMin == null || d.tzOffsetMin is int)
+          && (d.dayKey == null || d.dayKey is string)
+          && (d.deletedAt == null || d.deletedAt is number)
+          && (d.originalScanJson == null || (d.originalScanJson is string && d.originalScanJson.size() <= 200000))
+          && d.createdAt is number;
+      }
+
+      allow read: if isOwner();
+      allow create: if isOwner() && validMeal(request.resource.data) && request.resource.data.rev == 1;
+      allow update: if isOwner() && validMeal(request.resource.data)
+        && request.resource.data.rev == resource.data.rev + 1
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.source == resource.data.source
+        && request.resource.data.originalScanJson == resource.data.originalScanJson;
+      // Soft delete only: a tombstone (deletedAt) must reach the owner's other devices.
+      allow delete: if false;
+    }
+  }
+}

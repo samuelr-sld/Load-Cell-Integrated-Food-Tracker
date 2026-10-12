@@ -112,6 +112,12 @@ class Settings:
     calibration_verify: bool = field(default_factory=lambda: _env("CALIBRATION_VERIFY", "1") in ("1", "true", "True"))
     calibration_min_support: float = field(default_factory=lambda: _env("CALIBRATION_MIN_SUPPORT", 0.35, float))
 
+    # --- ESP32 load cell (scale_scan.py). Off by default so tests and the plain testbench never touch a serial port. ---
+    scale_enabled: bool = field(default_factory=lambda: _env("SCALE_ENABLED", "0") in ("1", "true", "True"))
+    scale_port: str = field(default_factory=lambda: _env("SCALE_PORT", "COM3"))
+    scale_baud: int = field(default_factory=lambda: _env("SCALE_BAUD", 115200, int))
+    scale_tare_g: float = field(default_factory=lambda: _env("SCALE_TARE_G", 0.0, float))     # empty-plate weight subtracted from the load cell reading
+    scale_min_net_g: float = field(default_factory=lambda: _env("SCALE_MIN_NET_G", 5.0, float))   # lighter than this is noise, not a meal
     host: str = field(default_factory=lambda: _env("HOST", "127.0.0.1"))
     port: int = field(default_factory=lambda: _env("PORT", 8000, int))
 
