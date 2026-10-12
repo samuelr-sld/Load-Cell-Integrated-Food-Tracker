@@ -28,7 +28,7 @@ def test_single_instance_gets_top5_and_all_debug_images():
     s = rec.segments[0]
     assert s.id == 1 and s.status == "classified" and cls.batch_sizes == [1]
     assert len(s.predictions) == 5 and s.predictions[0]["label"] == "red"
-    assert set(s.image_keys) == {"masked", "bbox", "model_input"} and all(k in rec.images for k in s.image_keys.values())
+    assert set(s.image_keys) == {"masked", "bbox", "mask", "model_input"} and all(k in rec.images for k in s.image_keys.values())
     assert s.crop_size_wh == [70, 70]
 
 

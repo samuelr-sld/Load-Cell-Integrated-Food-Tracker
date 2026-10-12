@@ -79,7 +79,8 @@ def test_real_image_through_http_with_both_checkpoints(client, models):
     for key in ["original", "overlay", *classified[0]["image_urls"].values()]:
         url = key if key.startswith("/api") else f"/api/results/{rid}/images/{key}"
         img = client.get(url)
-        assert img.status_code == 200 and Image.open(io.BytesIO(img.content)).format == "JPEG"
+        expected = "PNG" if url.endswith("_mask") else "JPEG"           # binary masks are lossless
+        assert img.status_code == 200 and Image.open(io.BytesIO(img.content)).format == expected
     print(f"\n[live] {path.name}: {len(res['segments'])} segments on {res['device']}, timings {t}")
 
 
@@ -164,6 +165,51 @@ def test_every_prediction_maps_to_its_own_segment(pipeline):
         assert solo[0].label in batched_top
         assert solo[0].softmax_score == pytest.approx(batched_top[solo[0].label], abs=0.01)
         assert solo[0].label == s.predictions[0]["label"] or abs(solo[0].softmax_score - s.predictions[0]["softmax_score"]) < 0.01
+
+
+# ------------------------------------------------------------------ YOLO-only mode with the real checkpoints
+def test_every_yolo_instance_has_a_valid_class_id_name_and_confidence(models):
+    """Step 2 of the YOLO-as-identity evaluation: over 12 evenly spaced held-out photos, every instance must carry an id that
+    exists in the checkpoint, the matching name, a confidence in (0, 1] and a full-resolution non-empty mask."""
+    from testbench.scripts.yolo_reliability_check import DATA_DIR, schema_problems
+    from testbench.segmentation import SegmentationService
+    paths = sorted((DATA_DIR / "images" / "val").glob("*.jpg"))
+    paths = paths[::max(1, len(paths) // 12)][:12]
+    seg = SegmentationService(models.yolo, models.yolo_names, models.device, S)
+    n = 0
+    for path in paths:
+        decoded = decode_image(path.read_bytes(), path.name, S)
+        dets = seg.segment(decoded.rgb).detections
+        assert not schema_problems(dets, models.yolo_names, *decoded.rgb.shape[:2]), path.name
+        assert all(0 <= d.class_id <= 102 for d in dets)
+        n += len(dets)
+    assert n >= 12, "12 meal photos should yield at least one instance each on average"
+
+
+def test_yolo_only_mode_with_real_models_skips_mobilenet_and_exposes_the_schema(pipeline, models, monkeypatch):
+    monkeypatch.setattr(pipeline.classifier, "classify", lambda *_: (_ for _ in ()).throw(AssertionError("MobileNet must not run")))
+    rec = pipeline.process_upload(IMAGES[0].read_bytes(), IMAGES[0].name, "yolo_only")
+    assert rec.status == "completed" and rec.mode == "yolo_only" and rec.timings_ms["classify_ms"] is None
+    identified = [s for s in rec.segments if s.status == "identified"]
+    assert identified
+    for s in identified:
+        d = s.to_dict(rec.result_id)
+        assert d["segment_id"] == s.id and d["mobilenet"] is None
+        assert d["primary_identity"]["class_name"] == models.yolo_names[s.yolo_class_id] == s.yolo_class_name
+        assert 0 < s.yolo_confidence <= 1 and set(s.image_keys) == {"masked", "bbox", "mask"}
+        mask = np.asarray(Image.open(io.BytesIO(rec.images[s.image_keys["mask"]])))
+        assert mask.shape == (s.crop_size_wh[1], s.crop_size_wh[0]) and int((mask == 255).sum()) == s.mask_area_px
+
+
+def test_both_modes_report_the_same_yolo_segments(pipeline):
+    """The comparison view is only meaningful if YOLO's part is identical in both modes."""
+    a = pipeline.process_upload(IMAGES[1].read_bytes(), IMAGES[1].name, "yolo_only")
+    b = pipeline.process_upload(IMAGES[1].read_bytes(), IMAGES[1].name, "compare")
+    assert len(a.segments) == len(b.segments) >= 1
+    for x, y in zip(a.segments, b.segments):
+        assert (x.id, x.yolo_class_id, x.yolo_class_name, x.box_xyxy, x.mask_area_px) == (y.id, y.yolo_class_id, y.yolo_class_name, y.box_xyxy, y.mask_area_px)
+        assert x.yolo_confidence == pytest.approx(y.yolo_confidence, abs=1e-3)
+        assert x.predictions == [] and (y.predictions != [] or y.status == "skipped")
 
 
 def test_classifier_state_for_inference(models):

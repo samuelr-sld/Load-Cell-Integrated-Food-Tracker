@@ -95,11 +95,14 @@ class FakeClassifier:
         return out
 
 
+YOLO_NAMES = {-1: "background", 0: "red-thing", 1: "speck", 2: "blue-thing", 3: "egg tart"}   # like the checkpoint: stray -1, names with spaces
+
+
 def make_pipeline(detections=None, error=None, settings: Settings | None = None):
     settings = settings or Settings()
     seg, cls = FakeSegmenter(detections, error), FakeClassifier()
     pipe = InferencePipeline(seg, CropProcessor(settings.min_mask_pixels, settings.min_crop_side), cls, settings,
-                             torch.device("cpu"), {"device": {"resolved": "cpu"}})
+                             torch.device("cpu"), {"device": {"resolved": "cpu"}}, YOLO_NAMES)
     return pipe, seg, cls
 
 

@@ -1,6 +1,9 @@
 // geminiService.js
 const GEMINI_API_KEY = ""; // Keep your active Gemini API key inside quotes
 
+// Unknown nutrition is sent as "unknown", never as 0 or a literal "null".
+const val = (v, unit) => (v == null || v === '' ? 'unknown' : `${v}${unit}`);
+
 // 1. Overall Multi-Day / General Diet Analysis
 export async function generateDietaryAdvice(meals) {
   if (!meals || meals.length === 0) {
@@ -10,8 +13,8 @@ export async function generateDietaryAdvice(meals) {
   const mealSummary = meals.map((m, idx) => {
     const timeStr = m.timestamp?.toDate 
       ? m.timestamp.toDate().toLocaleString() 
-      : (m.timestamp || 'Logged recently');
-    return `- Entry ${idx + 1} [${timeStr}] (${m.mealType || 'Meal'}): ${m.totalCalories ?? 0} kcal | Protein: ${m.totalProtein ?? 0}g | Carbs: ${m.totalCarbs ?? 0}g | Fat: ${m.totalFat ?? 0}g | Mass: ${m.totalWeight_g ?? 0}g`;
+      : (m.timestamp != null ? new Date(m.timestamp).toLocaleString() : 'undated');
+    return `- Entry ${idx + 1} [${timeStr}] (${m.mealType || 'Meal'}): ${val(m.totalCalories, ' kcal')} | Protein: ${val(m.totalProtein, 'g')} | Carbs: ${val(m.totalCarbs, 'g')} | Fat: ${val(m.totalFat, 'g')} | Mass: ${val(m.totalWeight_g, 'g')}`;
   }).join('\n');
 
   const prompt = `You are an expert AI clinical nutritionist. Analyze the following logged meal history with dates & times:
@@ -32,11 +35,11 @@ export async function generateSingleMealAdvice(meal) {
 
   const prompt = `You are an expert clinical dietitian. Analyze this specific logged meal:
 - Food: ${meal.mealType || 'Logged Meal'}
-- Total Calories: ${meal.totalCalories ?? 0} kcal
-- Measured Mass: ${meal.totalWeight_g ?? 0} g
-- Protein: ${meal.totalProtein ?? 0} g
-- Carbohydrates: ${meal.totalCarbs ?? 0} g
-- Dietary Fat: ${meal.totalFat ?? 0} g
+- Total Calories: ${val(meal.totalCalories, ' kcal')}
+- Measured Mass: ${val(meal.totalWeight_g, ' g')}
+- Protein: ${val(meal.totalProtein, ' g')}
+- Carbohydrates: ${val(meal.totalCarbs, ' g')}
+- Dietary Fat: ${val(meal.totalFat, ' g')}
 
 Provide:
 1. A 1-sentence assessment of this dish's nutritional quality and macro distribution.
@@ -51,10 +54,10 @@ export async function generateWeeklyInsightsAdvice(weeklyData) {
   if (!weeklyData) return "No weekly data available.";
 
   const prompt = `You are an expert clinical dietitian. Based on this user's 7-day nutritional summary:
-- Daily Average Calories: ${weeklyData.avgCalories} kcal
-- Daily Average Protein: ${weeklyData.avgProtein} g
-- Daily Average Carbs: ${weeklyData.avgCarbs} g
-- Daily Average Fat: ${weeklyData.avgFat} g
+- Daily Average Calories: ${val(weeklyData.avgCalories, ' kcal')}
+- Daily Average Protein: ${val(weeklyData.avgProtein, ' g')}
+- Daily Average Carbs: ${val(weeklyData.avgCarbs, ' g')}
+- Daily Average Fat: ${val(weeklyData.avgFat, ' g')}
 - Top Foods Eaten: ${weeklyData.topFoods?.join(', ') || 'Mixed meals'}
 
 Provide a concise, direct 1-to-2 sentence recommendation for the week (e.g., maintaining protein, adjusting carbohydrate sources, or adding micronutrient-rich local vegetables). Keep it under 40 words.`;

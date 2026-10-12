@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "calibrations": {
+    "index:1": {
+      "camera_id": "index:1",
+      "image_width": 1920,
+      "image_height": 1080,
+      "center_x": 932.044185916991,
+      "center_y": 618.4356475813229,
+      "radius_px": 408.9108933649119,
+      "plate_diameter_mm": null,
+      "calibrated_at": "2026-10-11T15:12:55+00:00",
+      "method": "manual_numeric",
+      "evidence": null
+    }
+  },
+  "selected_camera": "0"
+}

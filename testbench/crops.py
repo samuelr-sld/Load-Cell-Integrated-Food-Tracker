@@ -22,6 +22,7 @@ class CropResult:
     mask_fill_ratio: float                  # mask_area / box_area
     masked_crop: Image.Image | None = None  # primary classifier input: food pixels only, rest = black (0)
     bbox_crop: Image.Image | None = None    # same box, background retained (debug comparison only)
+    mask_crop: Image.Image | None = None    # binary mask ('L': 255 = food) over the same box, for lossless export
 
     @property
     def size_wh(self) -> tuple[int, int]:
@@ -65,7 +66,8 @@ class CropProcessor:
         region = image_rgb[y1:y2, x1:x2]
         masked = np.where(mask[:, :, None], region, np.uint8(0)).astype(np.uint8)  # black outside the mask
         return CropResult(det.index, "ok", None, box, area, fill,
-                          masked_crop=Image.fromarray(masked, "RGB"), bbox_crop=Image.fromarray(region.copy(), "RGB"))
+                          masked_crop=Image.fromarray(masked, "RGB"), bbox_crop=Image.fromarray(region.copy(), "RGB"),
+                          mask_crop=Image.fromarray(mask.astype(np.uint8) * 255, "L"))
 
     def model_input_preview(self, crop: Image.Image) -> Image.Image:
         """The exact 224x224 PIL image (after letterbox + resize) that is turned into the classifier tensor."""

@@ -1,0 +1,140 @@
+{
+  "_comment": "Curated demo mappings. Each record's fdc_id is verified at import time: USDA's description must contain `expect` (case-insensitive) or the record is skipped. Nutrients are never stored here; they come only from the USDA API. Labels with several records (raw/cooked) force the user to choose.",
+  "mappings": [
+    {
+      "taxonomy": "foodseg103",
+      "label": "apple",
+      "records": [
+        {
+          "fdc_id": 171688,
+          "preparation": "raw",
+          "expect": "apples, raw, with skin"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "banana",
+      "records": [
+        {
+          "fdc_id": 173944,
+          "preparation": "raw",
+          "expect": "bananas, raw"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "broccoli",
+      "records": [
+        {
+          "fdc_id": 170379,
+          "preparation": "raw",
+          "expect": "broccoli, raw"
+        },
+        {
+          "fdc_id": 169967,
+          "preparation": "cooked",
+          "expect": "broccoli, cooked, boiled"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "carrot",
+      "records": [
+        {
+          "fdc_id": 170393,
+          "preparation": "raw",
+          "expect": "carrots, raw"
+        },
+        {
+          "fdc_id": 170394,
+          "preparation": "cooked",
+          "expect": "carrots, cooked, boiled"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "tomato",
+      "records": [
+        {
+          "fdc_id": 170457,
+          "preparation": "raw",
+          "expect": "tomatoes, red, ripe, raw"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "rice",
+      "records": [
+        {
+          "fdc_id": 169756,
+          "preparation": "raw",
+          "expect": "rice, white, long-grain, regular, raw"
+        },
+        {
+          "fdc_id": 168878,
+          "preparation": "cooked",
+          "expect": "rice, white, long-grain, regular, enriched, cooked"
+        }
+      ]
+    },
+    {
+      "taxonomy": "food101",
+      "label": "hot_dog",
+      "records": [
+        {
+          "fdc_id": 174614,
+          "preparation": "prepared",
+          "expect": "frankfurter, beef, heated"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "sausage",
+      "records": [
+        {
+          "fdc_id": 174614,
+          "preparation": "prepared",
+          "expect": "frankfurter, beef, heated"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "egg",
+      "records": [
+        {
+          "fdc_id": 173424,
+          "preparation": "cooked",
+          "expect": "egg, whole, cooked, hard-boiled"
+        },
+        {
+          "fdc_id": 173423,
+          "preparation": "cooked",
+          "expect": "egg, whole, cooked, fried"
+        }
+      ]
+    },
+    {
+      "taxonomy": "foodseg103",
+      "label": "chicken duck",
+      "records": [
+        {
+          "fdc_id": 171477,
+          "preparation": "cooked",
+          "expect": "chicken, broilers or fryers, breast, meat only, cooked, roasted"
+        },
+        {
+          "fdc_id": 171450,
+          "preparation": "cooked",
+          "expect": "chicken, broilers or fryers, meat and skin, cooked, roasted"
+        }
+      ]
+    }
+  ]
+}

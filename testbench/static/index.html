@@ -11,14 +11,28 @@
   <header class="topbar">
     <div class="titles">
       <h1>Food Recognition Testbench</h1>
-      <p>YOLO11s-seg &rarr; masked crops &rarr; MobileNetV3 classifier &middot; <strong>temporary experimental harness</strong></p>
+      <p>YOLO11s-seg (masks + food identity) &rarr; masked crops &rarr; optional MobileNetV3 comparison &middot; <strong>temporary experimental harness</strong></p>
     </div>
     <div class="health" id="health" aria-live="polite">connecting&hellip;</div>
     <button id="clear-btn" class="btn danger" type="button">Clear all results</button>
   </header>
 
   <main>
+    <section class="panel" aria-labelledby="cam-h">
+      <details open>
+        <summary><h2 id="cam-h">Camera and plate detection</h2> <span class="hint">external USB camera &middot; OpenCV plate localization &middot; per-camera saved calibration</span></summary>
+        <div id="camera-panel"></div>
+      </details>
+    </section>
+
     <section aria-label="Upload">
+      <fieldset class="modes" id="modes">
+        <legend>Inference mode (applies to files added next)</legend>
+        <label><input type="radio" name="mode" value="yolo_only"> <strong>YOLO only</strong>
+          <span class="hint">YOLO's class is the food identity; MobileNet is not run (MVP candidate)</span></label>
+        <label><input type="radio" name="mode" value="compare"> <strong>YOLO + MobileNet</strong>
+          <span class="hint">experimental comparison: both models on the same masked crops</span></label>
+      </fieldset>
       <label id="dropzone" class="dropzone" for="file-input" tabindex="0">
         <strong>Drop meal photos here</strong> or click to choose files
         <span class="hint" id="limits-hint">JPEG / PNG</span>
@@ -34,6 +48,15 @@
       </details>
     </section>
 
+    <section class="panel" aria-labelledby="meals-h">
+      <details open>
+        <summary><h2 id="meals-h">Saved meals</h2> <span class="hint">stored in SQLite (testbench/data/meals.sqlite); survives server restarts</span></summary>
+        <div id="meals" class="summary">loading&hellip;</div>
+      </details>
+    </section>
+
+    <section id="autoscan" class="panel" aria-live="polite" hidden></section>
+
     <section aria-labelledby="res-h">
       <h2 id="res-h">Results</h2>
       <div id="results" class="results"><p class="empty" id="empty">No results yet. Upload an image to begin.</p></div>
@@ -41,7 +64,11 @@
   </main>
 
   <datalist id="classes"></datalist>
+  <datalist id="yolo-classes"></datalist>
   <dialog id="lightbox"><img alt="" id="lightbox-img"><form method="dialog"><button class="btn">Close</button></form></dialog>
   <script src="/static/app.js"></script>
+  <script src="/static/plate.js"></script>
+  <script src="/static/camera.js"></script>
+  <script src="/static/autoscan.js"></script>
 </body>
 </html>

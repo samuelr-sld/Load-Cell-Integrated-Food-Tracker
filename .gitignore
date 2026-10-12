@@ -13,6 +13,7 @@ mobilenet_pipeline/dataset/
 runs/
 *.jpg
 *.png
+!DietaryApp/assets/*.png
 
 # Keep trained model weights (Optional: if weights are <100MB)
 # If yolo11s_food_best.pt is >100MB, untrack it and use Git LFS or direct transfer to Pi
